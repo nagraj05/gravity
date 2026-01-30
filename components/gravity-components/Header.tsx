@@ -13,12 +13,6 @@ export default function Header() {
                     <Link href="/" className="text-xl font-semibold tracking-tight">
                         Gravity
                     </Link>
-
-                    <nav className="hidden items-center gap-6 text-sm text-white/70 md:flex">
-                        <Link className="hover:text-white transition" href="#features">Features</Link>
-                        <Link className="hover:text-white transition" href="#pricing">Pricing</Link>
-                        <Link className="hover:text-white transition" href="#docs">Docs</Link>
-                    </nav>
                 </div>
 
                 <div className="flex items-center gap-3">

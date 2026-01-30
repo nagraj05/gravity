@@ -7,12 +7,12 @@ export default function Home(): JSX.Element {
       <Header />
 
       <main className="flex flex-1 w-full flex-col items-center justify-center px-6 sm:px-16">
-        <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold tracking-tight leading-tight flex gap-2 items-center justify-center">Gravity</h1>
+        <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold tracking-tight leading-tight flex gap-2 items-center justify-center">Gravity!</h1>
         <section className="max-w-5xl w-full text-center space-y-8">
           <h1 className="text-4xl sm:text-6xl lg:text-4xl font-bold tracking-tight leading-tight flex gap-2 items-center justify-center">
             What pulls
             <span className="block bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-              you in?
+              you in.
             </span>
           </h1>
 
@@ -21,21 +21,6 @@ export default function Home(): JSX.Element {
             not likes, not noise.
           </p>
 
-          <div className="flex items-center justify-center gap-4 pt-6">
-            <button
-              type="button"
-              className="px-6 py-3 rounded-xl bg-white text-black font-medium hover:bg-gray-200 transition"
-            >
-              Enter Gravity
-            </button>
-
-            <button
-              type="button"
-              className="px-6 py-3 rounded-xl border border-gray-700 text-white hover:bg-gray-900 transition"
-            >
-              Learn More
-            </button>
-          </div>
         </section>
 
         <div className="my-20 h-px w-full max-w-4xl bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
