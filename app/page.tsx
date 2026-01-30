@@ -3,18 +3,18 @@ import { JSX } from "react";
 
 export default function Home(): JSX.Element {
   return (
-    <div className="flex flex-col w-full min-h-screen bg-black text-white">
+    <div className="flex flex-col w-full min-h-screen">
       <Header />
 
       <main className="flex flex-1 w-full flex-col items-center justify-center px-6 sm:px-16">
         <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold tracking-tight leading-tight flex gap-2 items-center justify-center">Gravity!</h1>
         <section className="max-w-5xl w-full text-center space-y-8">
-          <h1 className="text-4xl sm:text-6xl lg:text-4xl font-bold tracking-tight leading-tight flex gap-2 items-center justify-center">
-            What pulls
-            <span className="block bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-              you in.
+          <h2 className="text-md sm:text-md lg:text-xl font-bold tracking-tight leading-tight">
+            What pulls {" "}
+            <span className=" bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+              you in?
             </span>
-          </h1>
+          </h2>
 
           <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-400">
             Gravity is a social space built around thoughts, depth, and meaning —
@@ -58,7 +58,7 @@ function FeatureCard({
   return (
     <div className="rounded-2xl border border-gray-800 p-6 hover:border-purple-500 transition">
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-400">{description}</p>
+      <p className="text-gray-600">{description}</p>
     </div>
   );
 }
