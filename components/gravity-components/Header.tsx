@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Button } from "../ui/button"
 import { useRouter } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function Header() {
     const router = useRouter();
@@ -16,6 +17,7 @@ export default function Header() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <ModeToggle />
                     <SignedOut>
                         <Link href="/login">
                             <Button variant="ghost" >
