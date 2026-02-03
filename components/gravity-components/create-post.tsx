@@ -18,9 +18,14 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const MAX_LENGTH = 500;
+  const currentLength = content.length;
+  const isOverLimit = currentLength > MAX_LENGTH;
+  const isNearLimit = currentLength > 450 && currentLength <= MAX_LENGTH;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !content.trim()) return;
+    if (!user || !content.trim() || isOverLimit) return;
 
     setLoading(true);
     try {
@@ -66,50 +71,82 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   };
 
   return (
-    <div className="bg-card border rounded-lg p-6">
+    <div className="bg-card border border-border/50 rounded-xl p-6 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex gap-3">
           {user && (
             <img
               src={user.imageUrl}
               alt="You"
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10"
             />
           )}
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="May the force be with you..."
-            className="flex-1 py-2 resize-none border-0 bg-transparent focus:outline-none min-h-[80px]"
-            maxLength={500}
-          />
+          <div className="flex-1">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="May the force be with you..."
+              className="w-full py-2 resize-none border-0 bg-transparent focus:outline-none min-h-[80px] placeholder:text-muted-foreground"
+            />
+            
+            {/* Character Counter */}
+            {content.length > 0 && (
+              <div className="flex justify-end mt-1">
+                <span
+                  className={`text-xs font-medium transition-colors ${
+                    isOverLimit
+                      ? "text-red-500"
+                      : isNearLimit
+                      ? "text-orange-500"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {currentLength} / {MAX_LENGTH}
+                  {isOverLimit && (
+                    <span className="ml-1">
+                      ({currentLength - MAX_LENGTH} over limit)
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {showLinkInput && (
-          <input
-            type="url"
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            placeholder="Enter URL..."
-            className="w-full px-3 py-2 border rounded-md"
-          />
+          <div className="pl-[52px]">
+            <input
+              type="url"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="https://example.com"
+              className="w-full px-3 py-2 border border-border/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+          </div>
         )}
 
-        <div className="flex items-center justify-between pt-4 border-t">
+        <div className="flex items-center justify-between pt-4 border-t border-border/50">
           <div className="flex gap-2">
             <Button
+              type="button"
               onClick={() => setShowLinkInput(!showLinkInput)}
-              className="p-2 rounded-md hover:bg-accent transition-colors"
+              className={`p-2 rounded-lg transition-colors ${
+                showLinkInput
+                  ? "bg-primary/10 text-primary"
+                  : "hover:bg-accent"
+              }`}
               title="Add link"
-              variant={"link"}
+              variant="ghost"
+              size="icon"
             >
               <LinkIcon className="w-5 h-5" />
             </Button>
           </div>
 
           <Button
-            disabled={loading || !content.trim()}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            type="submit"
+            disabled={loading || !content.trim() || isOverLimit}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm"
           >
             <Send className="w-4 h-4" />
             {loading ? "Posting..." : "Post"}

@@ -6,12 +6,14 @@ const isProtectedRoute = createRouteMatcher(["/home(.*)", "/profile(.*)"]);
 const isAuthRoute = createRouteMatcher(["/login(.*)", "/signup(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+  const isAuthenticated = !!userId;
+
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
 
-  const { isAuthenticated } = await auth();
-  if (isAuthenticated && isAuthRoute(req)) {
+  if (isAuthenticated && (isAuthRoute(req) || req.nextUrl.pathname === "/")) {
     return NextResponse.redirect(new URL(HOME_URL, req.url));
   }
 

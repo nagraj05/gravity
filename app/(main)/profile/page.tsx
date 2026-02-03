@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -13,12 +14,13 @@ export default function ProfilePage() {
           <img
             src={user.imageUrl}
             alt={user.fullName || ""}
-            className="w-24 h-24 rounded-full mx-auto"
+            className="w-24 h-24 rounded-full mx-auto object-cover"
           />
           <p className="font-semibold text-lg">{user.fullName}</p>
           <p className="text-muted-foreground">
             @{user.username || user.id.slice(0, 8)}
           </p>
+          <UserButton showName />
         </div>
       )}
     </div>

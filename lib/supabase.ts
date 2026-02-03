@@ -12,6 +12,11 @@ export function useSupabaseClient() {
   const getAuthenticatedClient = async () => {
     const token = await getToken({ template: 'supabase' })
     
+    // If no token, return the public client (anon key only)
+    if (!token) {
+      return supabase
+    }
+
     return createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {

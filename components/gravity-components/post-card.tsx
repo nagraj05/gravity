@@ -29,7 +29,7 @@ export default function PostCard({ post }: PostCardProps) {
     : `@${post.clerk_user_id.slice(0, 8)}`;
 
   return (
-    <article className="bg-card border rounded-lg p-6 hover:shadow-md transition-shadow">
+    <article className="bg-card border rounded-lg px-6 py-4 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3 mb-4">
         {post.profiles?.image_url ? (
           <img
@@ -44,8 +44,8 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         <div className="flex-1 min-w-0">
-          <p className="font-semibold">{displayName}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="font-medium">{displayName}</p>
+          <p className="text-xs text-muted-foreground">
             {displayHandle} ·{" "}
             {formatDistanceToNow(new Date(post.created_at), {
               addSuffix: true,
