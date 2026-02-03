@@ -2,20 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import {
   Mail,
   Calendar,
-  MapPin,
-  Link as LinkIcon,
   Edit,
-  Settings,
+  MoveLeft,
+  Bookmark,
   Heart,
   MessageCircle,
-  Bookmark,
-  MoveLeft,
-  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +19,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useSupabaseClient } from "@/lib/supabase";
 import PostCard from "@/components/gravity-components/post-card";
+import LogoutButton from "@/components/gravity-components/logout-button";
 
 interface Post {
   id: string;
@@ -138,13 +134,7 @@ export default function ProfilePage() {
                       <Edit className="w-4 h-4 mr-2" />
                       Edit Profile
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => router.push('/settings')}
-                    >
-                      <Settings className="w-4 h-4" />
-                    </Button>
+                    <LogoutButton />
                   </div>
                 </div>
 
@@ -200,7 +190,7 @@ export default function ProfilePage() {
             <TabsTrigger value="saved">Saved</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="posts" className="mt-6">
+          <TabsContent value="posts" className="mt-2">
             {loading ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
@@ -229,27 +219,13 @@ export default function ProfilePage() {
                   <p className="text-sm text-muted-foreground mb-4">
                     Start sharing your thoughts with the world!
                   </p>
-                  <Button onClick={() => router.push('/')}>
+                  <Button onClick={() => router.push("/")}>
                     Create Your First Post
                   </Button>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-muted-foreground">
-                    {posts.length} {posts.length === 1 ? 'post' : 'posts'}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={fetchUserPosts}
-                    className="flex items-center gap-2"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Refresh
-                  </Button>
-                </div>
+              <div className="space-y-2">
                 {posts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}

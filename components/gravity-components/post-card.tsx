@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, MessageCircle, Share2, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Share2, ExternalLink, Link2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface PostCardProps {
@@ -65,7 +65,7 @@ export default function PostCard({ post }: PostCardProps) {
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-sm text-primary hover:underline mb-4"
         >
-          <ExternalLink className="w-4 h-4" />
+          <Link2 className="w-4 h-4" />
           {post.link}
         </a>
       )}

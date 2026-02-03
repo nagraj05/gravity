@@ -13,6 +13,8 @@ import Link from "next/link";
 import { ModeToggle } from "../mode-toggle";
 import { useSupabaseClient } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import LogoutButton from "./logout-button";
 
 export default function LeftSidebar() {
   const { user } = useUser();
@@ -70,13 +72,14 @@ export default function LeftSidebar() {
       {user && (
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border/50">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <img
+            <div className="w-12 h-12 rounded-full ring-2 ring-primary/10 relative">
+              <Image
                 src={user.imageUrl}
                 alt={user.firstName || "User"}
-                className="w-12 h-12 rounded-full ring-2 ring-primary/10 object-cover"
+                fill
+                className=" object-cover rounded-full"
               />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-card"></div>
+              <div className="absolute -bottom-1 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-card"></div>
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm truncate">
@@ -122,6 +125,7 @@ export default function LeftSidebar() {
           </Link>
         ))}
       </nav>
+      <LogoutButton />
     </div>
   );
 }

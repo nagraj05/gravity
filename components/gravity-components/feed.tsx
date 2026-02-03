@@ -5,7 +5,6 @@ import { useUser } from "@clerk/nextjs";
 import { useSupabaseClient } from "@/lib/supabase";
 import CreatePost from "./create-post";
 import PostCard from "./post-card";
-import { RefreshCw } from "lucide-react";
 
 interface Post {
   id: string;
@@ -46,7 +45,6 @@ export default function Feed() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      // @ts-ignore
       setPosts(data || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -62,17 +60,6 @@ export default function Feed() {
   return (
     <div className="space-y-4">
       {user && <CreatePost onPostCreated={fetchPosts} />}
-
-      <div className="flex items-center justify-between px-1">
-        <h2 className="text-md font-bold">Latest Posts</h2>
-        <button
-          onClick={fetchPosts}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <RefreshCw className="w-3 h-3" />
-          Refresh
-        </button>
-      </div>
 
       {loading ? (
         <div className="space-y-4">
