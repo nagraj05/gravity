@@ -114,7 +114,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
         </div>
 
         {showLinkInput && (
-          <div className="pl-[52px]">
+          <div>
             <input
               type="url"
               value={link}
