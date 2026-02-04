@@ -16,8 +16,17 @@ import LogoutButton from "./logout-button";
 import useFetchPostCount from "@/hooks/use-fetch-post-count";
 
 export default function LeftSidebar() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { data: count = 0 } = useFetchPostCount();
+
+  if (!isLoaded) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border/50 animate-pulse h-[160px]" />
+        <div className="bg-card rounded-xl shadow-sm border border-border/50 p-2 h-[260px] animate-pulse" />
+      </div>
+    );
+  }
 
   const menuItems = [
     { icon: Home, label: "Home Planet", href: "/", active: true },

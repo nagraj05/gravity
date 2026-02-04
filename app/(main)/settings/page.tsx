@@ -19,7 +19,7 @@ type ThemeFlavor = "default" | "vintage" | "bubblegum";
 
 export default function SettingsPage() {
   const router = useRouter();
-  
+
   const [flavor, setFlavor] = useState<ThemeFlavor>(() => {
     if (typeof window !== "undefined") {
       const savedFlavor = localStorage.getItem("theme-flavor") as ThemeFlavor;
@@ -108,6 +108,24 @@ export default function SettingsPage() {
                     id: "bubblegum",
                     name: "Bubblegum",
                     desc: "Sweet & Fun",
+                    bg: "bg-[#f8f0f4]",
+                  },
+                  {
+                    id: "vercel",
+                    name: "Vercel",
+                    desc: "Sleek & Modern",
+                    bg: "bg-[#f8f0f4]",
+                  },
+                  {
+                    id: "claymorphism",
+                    name: "Claymorphism",
+                    desc: "Sleek & Modern",
+                    bg: "bg-[#f8f0f4]",
+                  },
+                  {
+                    id: "darkmatter",
+                    name: "Dark Matter",
+                    desc: "Sleek & Modern",
                     bg: "bg-[#f8f0f4]",
                   },
                 ].map((t) => (

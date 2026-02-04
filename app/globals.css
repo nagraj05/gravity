@@ -65,6 +65,9 @@
 @import "./styles/themes/default.css";
 @import "./styles/themes/vintage.css";
 @import "./styles/themes/bubblegum.css";
+@import "./styles/themes/vercel.css";
+@import "./styles/themes/claymorphism.css";
+@import "./styles/themes/darkmatter.css";
 
 @layer base {
   * {
