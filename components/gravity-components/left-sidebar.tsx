@@ -11,37 +11,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "../mode-toggle";
-import { useSupabaseClient } from "@/lib/supabase";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import LogoutButton from "./logout-button";
+import useFetchPostCount from "@/hooks/use-fetch-post-count";
 
 export default function LeftSidebar() {
   const { user } = useUser();
-  const { getAuthenticatedClient } = useSupabaseClient();
-  const [count, setCount] = useState(0);
-
-  const fetchCount = async () => {
-    if (!user?.id) return;
-    try {
-      const supabase = await getAuthenticatedClient();
-      const { count, error } = await supabase
-        .from("posts")
-        .select("*", { count: "exact", head: true })
-        .eq("clerk_user_id", user.id);
-
-      if (error) throw error;
-      setCount(count || 0);
-    } catch (error) {
-      console.error("Error fetching post count:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchCount();
-    }
-  }, [user?.id]);
+  const { data: count = 0 } = useFetchPostCount();
 
   const menuItems = [
     { icon: Home, label: "Home Planet", href: "/", active: true },

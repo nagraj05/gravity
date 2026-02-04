@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import {
@@ -17,7 +16,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
-import { useSupabaseClient } from "@/lib/supabase";
 import PostCard from "@/components/gravity-components/post-card";
 import LogoutButton from "@/components/gravity-components/logout-button";
 
@@ -35,48 +33,12 @@ interface Post {
   } | null;
 }
 
+import useFetchUserPosts from "@/hooks/use-fetch-user-posts";
+
 export default function ProfilePage() {
   const { user } = useUser();
   const router = useRouter();
-  const { getAuthenticatedClient } = useSupabaseClient();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchUserPosts = async () => {
-    if (!user) return;
-    try {
-      setLoading(true);
-      const supabase = await getAuthenticatedClient();
-      const { data, error } = await supabase
-        .from("posts")
-        .select(
-          `
-          *,
-          profiles (
-            username,
-            first_name,
-            last_name,
-            image_url
-          )
-        `,
-        )
-        .eq("clerk_user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      console.error("Error fetching user posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchUserPosts();
-    }
-  }, [user]);
+  const { data: posts = [], isLoading: loading } = useFetchUserPosts(user?.id);
 
   if (!user) {
     return (
@@ -120,7 +82,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Profile Info */}
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                   <div>
@@ -138,12 +99,10 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Bio */}
                 <p className="text-sm mb-4">
                   ✨ Living my best life in the Gravity universe 🚀
                 </p>
 
-                {/* Meta Info */}
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
                   {user.primaryEmailAddress && (
                     <div className="flex items-center gap-1">
@@ -181,13 +140,12 @@ export default function ProfilePage() {
         </Card>
       </div>
 
-      {/* Content Tabs */}
       <div className="px-4">
         <Tabs defaultValue="posts" className="w-full">
           <TabsList className="grid w-full grid-cols-3 lg:w-auto">
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="likes">Likes</TabsTrigger>
-            <TabsTrigger value="saved">Saved</TabsTrigger>
+            <TabsTrigger value="posts" className="cursor-pointer">Posts</TabsTrigger>
+            <TabsTrigger value="likes" className="cursor-pointer">Likes</TabsTrigger>
+            <TabsTrigger value="saved" className="cursor-pointer">Saved</TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts" className="mt-2">
