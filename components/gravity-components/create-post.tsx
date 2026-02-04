@@ -78,7 +78,7 @@ export default function CreatePost() {
         </div>
 
         {showLinkInput && (
-          <div className="pl-[52px]">
+          <div>
             <input
               type="url"
               value={link}
