@@ -1,67 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useSupabaseClient } from "@/lib/supabase";
 import CreatePost from "./create-post";
 import PostCard from "./post-card";
-
-interface Post {
-  id: string;
-  clerk_user_id: string;
-  content: string;
-  link: string | null;
-  created_at: string;
-  profiles: {
-    username: string;
-    first_name: string;
-    last_name: string;
-    image_url: string;
-  } | null;
-}
+import useFetchPosts from "@/hooks/use-fetch-posts";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Feed() {
   const { user } = useUser();
-  const { getAuthenticatedClient } = useSupabaseClient();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchPosts = async () => {
-    try {
-      const supabase = await getAuthenticatedClient();
-      const { data, error } = await supabase
-        .from("posts")
-        .select(
-          `
-          *,
-          profiles (
-            username,
-            first_name,
-            last_name,
-            image_url
-          )
-        `,
-        )
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  const { data: posts = [], isLoading, error, refetch, isRefetching } = useFetchPosts();
 
   return (
     <div className="space-y-4">
-      {user && <CreatePost onPostCreated={fetchPosts} />}
+      {user && <CreatePost />}
 
-      {loading ? (
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-xl font-bold">Latest Posts</h2>
+        <Button
+          onClick={() => refetch()}
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-2"
+          disabled={isRefetching}
+        >
+          <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
+
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/50 rounded-xl p-6 text-center">
+          <p className="text-destructive font-medium">
+            Failed to load posts. Please try again.
+          </p>
+          <Button onClick={() => refetch()} className="mt-4" variant="outline">
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {isLoading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
             <div

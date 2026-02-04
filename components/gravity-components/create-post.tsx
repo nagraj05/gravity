@@ -2,21 +2,16 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useSupabaseClient } from "@/lib/supabase";
 import { Link as LinkIcon, Send } from "lucide-react";
 import { Button } from "../ui/button";
+import useCreatePost from "@/hooks/use-create-post";
 
-interface CreatePostProps {
-  onPostCreated?: () => void;
-}
-
-export default function CreatePost({ onPostCreated }: CreatePostProps) {
+export default function CreatePost() {
   const { user } = useUser();
-  const { getAuthenticatedClient } = useSupabaseClient();
+  const createPost = useCreatePost();
   const [content, setContent] = useState("");
   const [link, setLink] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const MAX_LENGTH = 500;
   const currentLength = content.length;
@@ -27,47 +22,16 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     e.preventDefault();
     if (!user || !content.trim() || isOverLimit) return;
 
-    setLoading(true);
-    try {
-      const supabase = await getAuthenticatedClient();
-
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            clerk_user_id: user.id,
-            username: user.username || user.firstName,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            image_url: user.imageUrl,
-            email: user.emailAddresses[0]?.emailAddress,
-          },
-          { onConflict: "clerk_user_id" },
-        )
-        .select("id")
-        .single();
-
-      if (profileError) throw profileError;
-
-      const { error: postError } = await supabase.from("posts").insert({
-        user_id: profileData.id,
-        clerk_user_id: user.id,
-        content: content.trim(),
-        link: link.trim() || null,
-      });
-
-      if (postError) throw postError;
-
-      setContent("");
-      setLink("");
-      setShowLinkInput(false);
-      onPostCreated?.();
-    } catch (error) {
-      console.error("Error creating post:", error);
-      alert("Failed to create post");
-    } finally {
-      setLoading(false);
-    }
+    createPost.mutate(
+      { content, link: link || null },
+      {
+        onSuccess: () => {
+          setContent("");
+          setLink("");
+          setShowLinkInput(false);
+        },
+      }
+    );
   };
 
   return (
@@ -87,9 +51,9 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
               onChange={(e) => setContent(e.target.value)}
               placeholder="May the force be with you..."
               className="w-full py-2 resize-none border-0 bg-transparent focus:outline-none min-h-[80px] placeholder:text-muted-foreground"
+              disabled={createPost.isPending}
             />
-            
-            {/* Character Counter */}
+
             {content.length > 0 && (
               <div className="flex justify-end mt-1">
                 <span
@@ -114,13 +78,14 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
         </div>
 
         {showLinkInput && (
-          <div>
+          <div className="pl-[52px]">
             <input
               type="url"
               value={link}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://example.com"
               className="w-full px-3 py-2 border border-border/50 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              disabled={createPost.isPending}
             />
           </div>
         )}
@@ -138,6 +103,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
               title="Add link"
               variant="ghost"
               size="icon"
+              disabled={createPost.isPending}
             >
               <LinkIcon className="w-5 h-5" />
             </Button>
@@ -145,11 +111,11 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
 
           <Button
             type="submit"
-            disabled={loading || !content.trim() || isOverLimit}
+            disabled={createPost.isPending || !content.trim() || isOverLimit}
             className="flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm"
           >
             <Send className="w-4 h-4" />
-            {loading ? "Posting..." : "Post"}
+            {createPost.isPending ? "Posting..." : "Post"}
           </Button>
         </div>
       </form>
