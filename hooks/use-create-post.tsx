@@ -55,6 +55,7 @@ export default function useCreatePost() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["user-posts", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["post-count", user?.id] });
       toast.success("Post created successfully! 🚀");
     },

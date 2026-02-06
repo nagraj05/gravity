@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface PostCardProps {
   post: {
@@ -83,19 +84,54 @@ export default function PostCard({ post }: PostCardProps) {
       </div>
 
       <div className="mb-4">
-        <p className="whitespace-pre-wrap">{post.content}</p>
+        {post.link?.startsWith("code:") ? (
+          <div className="rounded-lg overflow-hidden border border-border/50">
+            <div className="bg-muted/50 px-4 py-1 text-[10px] font-mono border-b border-border/50 flex justify-between items-center">
+              <span>{post.link.split(":")[1].toUpperCase()}</span>
+            </div>
+              <pre className="p-4 bg-muted/20 text-sm font-mono whitespace-pre text-wrap sm:text-nowrap overflow-x-auto">
+                <code>{post.content}</code>
+              </pre>
+          </div>
+        ) : (
+          <p className="whitespace-pre-wrap">{post.content}</p>
+        )}
       </div>
 
-      {post.link && (
-        <a
-          href={post.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-primary hover:underline mb-4"
-        >
-          <Link2 className="w-4 h-4" />
-          {post.link}
-        </a>
+      {post.link && !post.link.startsWith("code:") && (
+        <div className="mb-4">
+          {post.link.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)/i) ? (
+            <div className="rounded-lg overflow-hidden border border-border/50 shadow-sm">
+              <img
+                src={post.link}
+                alt="Post attachment"
+                className="w-full h-auto max-h-[500px] object-cover hover:scale-[1.01] transition-transform"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
+          ) : (
+            <a
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-3 rounded-lg border border-border/50 bg-muted/10 hover:bg-muted/20 transition-all text-sm group"
+            >
+              <div className="p-2 rounded-md bg-primary/10 text-primary">
+                <Link2 className="w-4 h-4" />
+              </div>
+              <div className="flex-1 truncate">
+                <p className="font-medium truncate group-hover:underline text-primary">
+                  {post.link}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  External Link
+                </p>
+              </div>
+            </a>
+          )}
+        </div>
       )}
       <div className="flex justify-between items-center pt-4 border-t">
         <div className="flex items-center gap-4">

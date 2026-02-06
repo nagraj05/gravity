@@ -10,6 +10,7 @@ import {
   Bookmark,
   Heart,
   MessageCircle,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +19,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import PostCard from "@/components/gravity-components/post-card";
 import LogoutButton from "@/components/gravity-components/logout-button";
+import CreatePostModal from "@/components/gravity-components/create-post-modal";
 
 interface Post {
   id: string;
@@ -55,7 +57,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto relative min-h-screen">
       <Button
         className="w-fit text-xs ml-4 mt-4"
         size={"xs"}
@@ -143,9 +145,15 @@ export default function ProfilePage() {
       <div className="px-4">
         <Tabs defaultValue="posts" className="w-full">
           <TabsList className="grid w-full grid-cols-3 lg:w-auto">
-            <TabsTrigger value="posts" className="cursor-pointer">Posts</TabsTrigger>
-            <TabsTrigger value="likes" className="cursor-pointer">Likes</TabsTrigger>
-            <TabsTrigger value="saved" className="cursor-pointer">Saved</TabsTrigger>
+            <TabsTrigger value="posts" className="cursor-pointer">
+              Posts
+            </TabsTrigger>
+            <TabsTrigger value="likes" className="cursor-pointer">
+              Likes
+            </TabsTrigger>
+            <TabsTrigger value="saved" className="cursor-pointer">
+              Saved
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="posts" className="mt-2">
@@ -215,6 +223,18 @@ export default function ProfilePage() {
             </Card>
           </TabsContent>
         </Tabs>
+      </div>
+      <div className="fixed bottom-20 right-2 lg:bottom-8 lg:right-60 z-40">
+        <CreatePostModal
+          trigger={
+            <Button
+              size="icon"
+              className="h-14 w-14 rounded-full hover:scale-105 transition-transform bg-primary text-primary-foreground"
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          }
+        />
       </div>
     </div>
   );
