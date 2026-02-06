@@ -35,7 +35,7 @@ export default function PostComposer({
   const { user } = useUser();
   const [type, setType] = useState<PostType>("text");
   const [content, setContent] = useState("");
-  const [secondaryInput, setSecondaryInput] = useState(""); // URL for image/link, Language for code
+  const [secondaryInput, setSecondaryInput] = useState(""); 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { mutate: createPost, isPending } = useCreatePost();
   const queryClient = useQueryClient();

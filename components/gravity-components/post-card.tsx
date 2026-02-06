@@ -7,6 +7,8 @@ import {
   Link2,
   Trash2,
   Bookmark,
+  Copy,
+  Check,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useUser } from "@clerk/nextjs";
@@ -23,7 +25,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useState, useMemo, useEffect } from "react";
+import * as prettier from "prettier/standalone";
+import parserBabel from "prettier/plugins/babel";
+import parserTypescript from "prettier/plugins/typescript";
+import parserHtml from "prettier/plugins/html";
+import parserCss from "prettier/plugins/postcss";
+import parserEstree from "prettier/plugins/estree";
 
 interface PostCardProps {
   post: {
@@ -44,6 +54,7 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const { user } = useUser();
   const { mutate: deletePost, isPending: isDeleting } = useDeletePost();
+  const [copied, setCopied] = useState(false);
 
   const isAuthor = user?.id === post.clerk_user_id;
 
@@ -54,6 +65,67 @@ export default function PostCard({ post }: PostCardProps) {
   const displayHandle = post.profiles?.username
     ? `@${post.profiles.username}`
     : `@${post.clerk_user_id.slice(0, 8)}`;
+
+  // State for formatted code
+  const [formattedCode, setFormattedCode] = useState(post.content);
+
+  // Auto-format code
+  useEffect(() => {
+    if (!post.link?.startsWith("code:")) {
+      setFormattedCode(post.content);
+      return;
+    }
+
+    const formatCode = async () => {
+      const language = post.link?.split(":")[1] || "javascript";
+
+      try {
+        let parser = "babel";
+        let plugins: any[] = [parserBabel, parserEstree];
+
+        // Map language to prettier parser
+        if (language === "typescript" || language === "tsx") {
+          parser = "typescript";
+          plugins = [parserTypescript, parserEstree];
+        } else if (language === "html") {
+          parser = "html";
+          plugins = [parserHtml];
+        } else if (language === "css") {
+          parser = "css";
+          plugins = [parserCss];
+        } else if (language === "javascript" || language === "jsx") {
+          parser = "babel";
+          plugins = [parserBabel, parserEstree];
+        } else {
+          // For languages prettier doesn't support
+          setFormattedCode(post.content);
+          return;
+        }
+
+        const formatted = await prettier.format(post.content, {
+          parser,
+          plugins,
+          semi: true,
+          singleQuote: false,
+          tabWidth: 2,
+          trailingComma: "es5",
+          printWidth: 60, // Smaller width for cards
+        });
+        setFormattedCode(formatted);
+      } catch (error) {
+        console.error("Prettier formatting error:", error);
+        setFormattedCode(post.content);
+      }
+    };
+
+    formatCode();
+  }, [post.content, post.link]);
+
+  const handleCopyCode = async () => {
+    await navigator.clipboard.writeText(formattedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <article className="bg-card border rounded-lg px-6 py-4 hover:shadow-md transition-shadow">
@@ -86,12 +158,45 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="mb-4">
         {post.link?.startsWith("code:") ? (
           <div className="rounded-lg overflow-hidden border border-border/50">
-            <div className="bg-muted/50 px-4 py-1 text-[10px] font-mono border-b border-border/50 flex justify-between items-center">
-              <span>{post.link.split(":")[1].toUpperCase()}</span>
+            <div className="bg-muted/50 px-4 py-2 text-xs font-mono border-b border-border/50 flex justify-between items-center">
+              <span className="font-semibold">
+                {post.link.split(":")[1].toUpperCase()}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyCode}
+                className="h-7 px-2 text-xs"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-2 h-2 mr-1" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-2 h-2" />
+                  </>
+                )}
+              </Button>
             </div>
-              <pre className="p-4 bg-muted/20 text-sm font-mono whitespace-pre text-wrap sm:text-nowrap overflow-x-auto">
-                <code>{post.content}</code>
-              </pre>
+            <div className="max-h-[500px] overflow-auto">
+              <SyntaxHighlighter
+                language={post.link.split(":")[1]}
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: 0,
+                  background: "transparent",
+                  fontSize: "0.875rem",
+                  padding: "1rem",
+                }}
+                showLineNumbers
+                wrapLines
+              >
+                {formattedCode}
+              </SyntaxHighlighter>
+            </div>
           </div>
         ) : (
           <p className="whitespace-pre-wrap">{post.content}</p>
