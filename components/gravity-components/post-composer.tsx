@@ -15,6 +15,7 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import useCreatePost from "@/hooks/use-create-post";
+// @ts-ignore - Temporary workaround for framer-motion v12 type resolution issue in some environments
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@clerk/nextjs";
@@ -47,7 +48,7 @@ export default function PostComposer({
     setSecondaryInput("");
     setShowEmojiPicker(false);
   }, [type]);
-  
+
   useEffect(() => {
     if (type === "code") {
       setSecondaryInput("javascript");
@@ -277,7 +278,12 @@ export default function PostComposer({
           ) : (
             <Send className="w-4 h-4" />
           )}
-          <span>{isPending ? "Launching..." : "Launch Post"}</span>
+          <span className="hidden sm:inline">
+            {isPending ? "Launching..." : "Launch Post"}
+          </span>
+          <span className="sm:hidden">
+            {isPending ? "Launching..." : "Launch"}
+          </span>
         </Button>
       </div>
     </div>
