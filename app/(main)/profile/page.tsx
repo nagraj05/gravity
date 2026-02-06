@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import {
   Mail,
@@ -39,6 +39,7 @@ import useFetchUserPosts from "@/hooks/use-fetch-user-posts";
 
 export default function ProfilePage() {
   const { user } = useUser();
+  const { openUserProfile } = useClerk();
   const router = useRouter();
   const { data: posts = [], isLoading: loading } = useFetchUserPosts(user?.id);
 
@@ -93,7 +94,11 @@ export default function ProfilePage() {
                     </p>
                   </div>
                   <div className="flex gap-2 justify-center sm:justify-start">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openUserProfile()}
+                    >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit Profile
                     </Button>
