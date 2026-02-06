@@ -35,7 +35,7 @@ export default function PostComposer({
   const { user } = useUser();
   const [type, setType] = useState<PostType>("text");
   const [content, setContent] = useState("");
-  const [secondaryInput, setSecondaryInput] = useState(""); 
+  const [secondaryInput, setSecondaryInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { mutate: createPost, isPending } = useCreatePost();
   const queryClient = useQueryClient();
@@ -44,10 +44,15 @@ export default function PostComposer({
   const MAX_LENGTH = type === "code" ? 2000 : 500;
 
   useEffect(() => {
-    if (type === "code" && !secondaryInput) {
+    setSecondaryInput("");
+    setShowEmojiPicker(false);
+  }, [type]);
+  
+  useEffect(() => {
+    if (type === "code") {
       setSecondaryInput("javascript");
     }
-  }, [type, secondaryInput]);
+  }, [type]);
 
   const handleSubmit = () => {
     let finalContent = content;

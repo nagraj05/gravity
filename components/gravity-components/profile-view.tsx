@@ -1,0 +1,234 @@
+"use client";
+
+import { useUser, useClerk } from "@clerk/nextjs";
+import Image from "next/image";
+import {
+  Mail,
+  Calendar,
+  Edit,
+  MoveLeft,
+  Bookmark,
+  Heart,
+  MessageCircle,
+  Plus,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatDistanceToNow } from "date-fns";
+import { useRouter } from "next/navigation";
+import PostCard from "@/components/gravity-components/post-card";
+import LogoutButton from "@/components/gravity-components/logout-button";
+import CreatePostModal from "@/components/gravity-components/create-post-modal";
+import useFetchUserPosts from "@/hooks/use-fetch-user-posts";
+import { Profile } from "@/hooks/use-fetch-profile";
+
+interface ProfileViewProps {
+  profile: Profile;
+  isOwner: boolean;
+}
+
+export default function ProfileView({ profile, isOwner }: ProfileViewProps) {
+  const { openUserProfile } = useClerk();
+  const router = useRouter();
+  const { data: posts = [], isLoading: loading } = useFetchUserPosts(
+    profile.clerk_user_id,
+  );
+
+  const stats = [
+    { label: "Posts", value: posts.length.toString() },
+    { label: "Followers", value: "0" },
+    { label: "Following", value: "0" },
+  ];
+
+  const fullName = profile.first_name
+    ? `${profile.first_name} ${profile.last_name || ""}`
+    : profile.username;
+
+  return (
+    <div className="max-w-4xl mx-auto relative min-h-screen">
+      <Button
+        className="w-fit text-xs ml-4 mt-4"
+        size={"xs"}
+        variant={"outline"}
+        onClick={() => router.back()}
+      >
+        <MoveLeft className="w-4 h-4 mr-1" />
+        Back
+      </Button>
+      <div className="p-4">
+        <Card className="border-border/50 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="relative mx-auto sm:mx-0">
+                <div className="relative w-32 h-32 rounded-full ring-4 ring-background overflow-hidden">
+                  <Image
+                    src={profile.image_url}
+                    alt={fullName || "Profile"}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                  <div>
+                    <h1 className="text-2xl font-bold">{fullName}</h1>
+                    <p className="text-muted-foreground">@{profile.username}</p>
+                  </div>
+                  {isOwner && (
+                    <div className="flex gap-2 justify-center sm:justify-start">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openUserProfile()}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                      <LogoutButton />
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-sm mb-4">
+                  {profile.bio ||
+                    "✨ Living my best life in the Gravity universe 🚀"}
+                </p>
+
+                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      Joined{" "}
+                      {formatDistanceToNow(new Date(profile.created_at), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 justify-center sm:justify-start">
+                  {stats.map((stat) => (
+                    <button
+                      key={stat.label}
+                      className="hover:underline transition-all"
+                    >
+                      <span className="font-bold">{stat.value}</span>
+                      <span className="text-muted-foreground ml-1 text-sm">
+                        {stat.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="px-4">
+        <Tabs defaultValue="posts" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+            <TabsTrigger value="posts" className="cursor-pointer">
+              Posts
+            </TabsTrigger>
+            <TabsTrigger value="likes" className="cursor-pointer">
+              Likes
+            </TabsTrigger>
+            <TabsTrigger value="saved" className="cursor-pointer">
+              Saved
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="posts" className="mt-2">
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i} className="border-border/50 animate-pulse">
+                    <CardContent className="p-6">
+                      <div className="flex gap-3 mb-4">
+                        <div className="w-10 h-10 bg-muted rounded-full"></div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-muted rounded w-1/4"></div>
+                          <div className="h-3 bg-muted rounded w-1/6"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                        <div className="h-4 bg-muted rounded w-1/2"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : posts.length === 0 ? (
+              <Card className="border-border/50">
+                <CardContent className="p-12 text-center">
+                  <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="font-semibold mb-2">No posts yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {isOwner
+                      ? "Start sharing your thoughts with the world!"
+                      : "This user hasn't posted anything yet."}
+                  </p>
+                  {isOwner && (
+                    <Button onClick={() => router.push("/")}>
+                      Create Your First Post
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {posts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="likes" className="mt-6">
+            <Card className="border-border/50">
+              <CardContent className="p-12 text-center">
+                <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="font-semibold mb-2">No likes yet</h3>
+                <p className="text-sm text-muted-foreground">
+                  Posts {isOwner ? "you" : "this user"} liked will appear here
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="saved" className="mt-6">
+            <Card className="border-border/50">
+              <CardContent className="p-12 text-center">
+                <Bookmark className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="font-semibold mb-2">No saved posts</h3>
+                <p className="text-sm text-muted-foreground">
+                  Saved posts will appear here
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+      {isOwner && (
+        <div className="fixed bottom-20 right-2 lg:bottom-8 lg:right-60 z-40">
+          <CreatePostModal
+            trigger={
+              <Button
+                size="icon"
+                className="h-14 w-14 rounded-full hover:scale-105 transition-transform bg-primary text-primary-foreground"
+              >
+                <Plus className="h-6 w-6" />
+              </Button>
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
+}

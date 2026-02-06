@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
 import useDeletePost from "@/hooks/use-delete-post";
 import {
   AlertDialog,
@@ -131,26 +132,37 @@ export default function PostCard({ post }: PostCardProps) {
     <article className="bg-card border rounded-lg px-6 py-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-start gap-3">
-          {post.profiles?.image_url ? (
-            <img
-              src={post.profiles.image_url}
-              alt={displayName}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-              {post.clerk_user_id.slice(0, 2).toUpperCase()}
-            </div>
-          )}
+          <Link
+            href={`/profile/@${post.profiles?.username || post.clerk_user_id}`}
+          >
+            {post.profiles?.image_url ? (
+              <img
+                src={post.profiles.image_url}
+                alt={displayName}
+                className="w-10 h-10 rounded-full object-cover border border-border/50 hover:opacity-80 transition-opacity"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold hover:opacity-80 transition-opacity">
+                {post.clerk_user_id.slice(0, 2).toUpperCase()}
+              </div>
+            )}
+          </Link>
 
           <div className="flex-1 min-w-0">
-            <p className="font-medium">{displayName}</p>
-            <p className="text-xs text-muted-foreground">
-              {displayHandle} ·{" "}
-              {formatDistanceToNow(new Date(post.created_at), {
-                addSuffix: true,
-              })}
-            </p>
+            <Link
+              href={`/profile/@${post.profiles?.username || post.clerk_user_id}`}
+              className="group/name block"
+            >
+              <p className="font-medium group-hover/name:text-primary transition-colors truncate">
+                {displayName}
+              </p>
+              <p className="text-xs text-muted-foreground decoration-muted-foreground/30">
+                {displayHandle} ·{" "}
+                {formatDistanceToNow(new Date(post.created_at), {
+                  addSuffix: true,
+                })}
+              </p>
+            </Link>
           </div>
         </div>
       </div>
@@ -238,15 +250,13 @@ export default function PostCard({ post }: PostCardProps) {
           )}
         </div>
       )}
-      <div className="flex justify-between items-center pt-4 border-t">
+      <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <button className="flex items-center gap-2 text-muted-foreground hover:text-red-500 transition-colors">
             <Heart className="w-5 h-5" />
-            <span className="text-sm">0</span>
           </button>
           <button className="flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors">
             <MessageCircle className="w-5 h-5" />
-            <span className="text-sm">0</span>
           </button>
           <button className="flex items-center gap-2 text-muted-foreground hover:text-green-500 transition-colors">
             <Share2 className="w-5 h-5" />
