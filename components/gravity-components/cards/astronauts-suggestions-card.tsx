@@ -26,7 +26,7 @@ export default function AstronautsSuggestionsCard() {
               key={user.username}
               className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent transition-all"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 shrink-0">
                 <Image
                   src={user.image_url}
                   alt={user.first_name + " " + user.last_name}
