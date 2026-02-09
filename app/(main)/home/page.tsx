@@ -5,7 +5,7 @@ import LeftSidebar from "@/components/gravity-components/left-sidebar";
 import RightSidebar from "@/components/gravity-components/right-sidebar";
 import { useUser } from "@clerk/nextjs";
 import Loader from "@/components/gravity-components/loader";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 
 export default function Home() {
   const { isLoaded: userLoaded } = useUser();

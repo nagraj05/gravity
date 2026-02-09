@@ -15,8 +15,7 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import useCreatePost from "@/hooks/use-create-post";
-// @ts-ignore - Temporary workaround for framer-motion v12 type resolution issue in some environments
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@clerk/nextjs";
 import { LANGUAGES } from "@/constants/languages";
