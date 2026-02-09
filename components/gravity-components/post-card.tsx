@@ -42,6 +42,7 @@ interface PostCardProps {
     clerk_user_id: string;
     content: string;
     link: string | null;
+    media_type: string | null;
     created_at: string;
     profiles: {
       username: string;
@@ -110,7 +111,7 @@ export default function PostCard({ post }: PostCardProps) {
           singleQuote: false,
           tabWidth: 2,
           trailingComma: "es5",
-          printWidth: 60, // Smaller width for cards
+          printWidth: 60,
         });
         setFormattedCode(formatted);
       } catch (error) {
@@ -217,7 +218,9 @@ export default function PostCard({ post }: PostCardProps) {
 
       {post.link && !post.link.startsWith("code:") && (
         <div className="mb-4">
-          {post.link.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)/i) ? (
+          {post.media_type === "image" ||
+          post.media_type === "gif" ||
+          post.link.match(/\.(jpeg|jpg|gif|png|webp|svg|avif)/i) ? (
             <div className="rounded-lg overflow-hidden border border-border/50 shadow-sm">
               <img
                 src={post.link}

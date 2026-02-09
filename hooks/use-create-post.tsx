@@ -6,6 +6,7 @@ import { toast } from "sonner";
 interface CreatePostInput {
   content: string;
   link: string | null;
+  media_type?: string | null;
 }
 
 export default function useCreatePost() {
@@ -14,7 +15,7 @@ export default function useCreatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ content, link }: CreatePostInput) => {
+    mutationFn: async ({ content, link, media_type }: CreatePostInput) => {
       if (!user) throw new Error("User not authenticated");
 
       const supabase = await getAuthenticatedClient();
@@ -46,6 +47,7 @@ export default function useCreatePost() {
           clerk_user_id: user.id,
           content: content.trim(),
           link: link?.trim() || null,
+          media_type: media_type || null,
         })
         .select()
         .single();
