@@ -20,6 +20,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@clerk/nextjs";
 import { LANGUAGES } from "@/constants/languages";
 import { EMOJIS } from "@/constants/emojis";
+import { useSupabaseClient } from "@/lib/supabase";
+import { toast } from "sonner";
 
 type PostType = "text" | "image" | "link" | "code";
 
@@ -40,6 +42,11 @@ export default function PostComposer({
   const { mutate: createPost, isPending } = useCreatePost();
   const queryClient = useQueryClient();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { getAuthenticatedClient } = useSupabaseClient();
 
   const MAX_LENGTH = type === "code" ? 2000 : 500;
 
@@ -54,33 +61,86 @@ export default function PostComposer({
     }
   }, [type]);
 
-  const handleSubmit = () => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSubmit = async () => {
     let finalContent = content;
     let finalLink = null;
+    let mediaType = null;
 
-    if (type === "image" || type === "link") {
-      let url = secondaryInput.trim();
-      if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
-        url = `https://${url}`;
+    setIsUploading(true);
+
+    try {
+      if (type === "image" && selectedFile) {
+        const supabase = await getAuthenticatedClient();
+        const fileExt = selectedFile.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `post-attachments/${user?.id}/${fileName}`;
+
+        const { data, error } = await supabase.storage
+          .from("post-attachments")
+          .upload(filePath, selectedFile);
+
+        if (error) throw error;
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("post-attachments").getPublicUrl(filePath);
+
+        finalLink = publicUrl;
+        mediaType = selectedFile.type.startsWith("image/gif") ? "gif" : "image";
+      } else if (type === "image" || type === "link") {
+        let url = secondaryInput.trim();
+        if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+          url = `https://${url}`;
+        }
+        finalLink = url;
+      } else if (type === "code") {
+        finalLink = `code:${secondaryInput}`;
       }
-      finalLink = url;
-    } else if (type === "code") {
-      finalLink = `code:${secondaryInput}`;
-    }
 
-    createPost(
-      { content: finalContent, link: finalLink },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["posts"] });
-          queryClient.invalidateQueries({ queryKey: ["user-posts", user?.id] });
-          setContent("");
-          setSecondaryInput("");
-          setType("text");
-          if (onSuccess) onSuccess();
+      createPost(
+        { content: finalContent, link: finalLink, media_type: mediaType },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["posts"] });
+            queryClient.invalidateQueries({
+              queryKey: ["user-posts", user?.id],
+            });
+            setContent("");
+            setSecondaryInput("");
+            setType("text");
+            removeFile();
+            if (onSuccess) onSuccess();
+          },
+          onSettled: () => {
+            setIsUploading(false);
+          },
         },
-      },
-    );
+      );
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.message || "Failed to upload image");
+      setIsUploading(false);
+    }
   };
 
   const addEmoji = (emoji: string) => {
@@ -192,12 +252,53 @@ export default function PostComposer({
               className="overflow-hidden"
             >
               {type === "image" && (
-                <Input
-                  placeholder="Paste image URL (e.g., https://...) "
-                  value={secondaryInput}
-                  onChange={(e) => setSecondaryInput(e.target.value)}
-                  className="bg-muted/30 border-dashed"
-                />
+                <div className="flex flex-col gap-3">
+                  <Input
+                    type="file"
+                    accept="image/*,.gif"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                  />
+                  {!previewUrl ? (
+                    <Button
+                      variant="outline"
+                      className="w-full border-dashed h-24 flex flex-col gap-2 text-muted-foreground hover:text-primary hover:border-primary/50 transition-all"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <ImageIcon className="w-6 h-6" />
+                      <span>Click to upload image or GIF</span>
+                    </Button>
+                  ) : (
+                    <div className="relative group rounded-lg overflow-hidden border">
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="w-full h-auto max-h-[300px] object-cover"
+                      />
+                      <button
+                        onClick={removeFile}
+                        className="absolute top-2 right-2 p-1.5 bg-background/80 hover:bg-destructive hover:text-white rounded-full transition-all shadow-sm"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <div className="h-px flex-1 bg-border/50" />
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                      OR
+                    </span>
+                    <div className="h-px flex-1 bg-border/50" />
+                  </div>
+                  <Input
+                    placeholder="Paste image URL (e.g., https://...) "
+                    value={secondaryInput}
+                    onChange={(e) => setSecondaryInput(e.target.value)}
+                    className="bg-muted/30 border-dashed"
+                    disabled={!!previewUrl}
+                  />
+                </div>
               )}
               {type === "link" && (
                 <Input
@@ -232,7 +333,7 @@ export default function PostComposer({
         <div className="flex items-center gap-2 p-1 bg-muted/50 rounded-lg w-fit">
           {[
             { id: "text", icon: Type, label: "Text" },
-            // { id: "image", icon: ImageIcon, label: "Image" },
+            { id: "image", icon: ImageIcon, label: "Image" },
             { id: "link", icon: LinkIcon, label: "Link" },
             { id: "code", icon: CodeIcon, label: "Code" },
           ].map((item) => {
@@ -266,22 +367,23 @@ export default function PostComposer({
           onClick={handleSubmit}
           disabled={
             isPending ||
+            isUploading ||
             !content.trim() ||
-            (type !== "text" && !secondaryInput.trim()) ||
+            (type !== "text" && !secondaryInput.trim() && !selectedFile) ||
             content.length > MAX_LENGTH
           }
           className="rounded-full px-6 flex items-center gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
         >
-          {isPending ? (
+          {isPending || isUploading ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
           ) : (
             <Send className="w-4 h-4" />
           )}
           <span className="hidden sm:inline">
-            {isPending ? "Launching..." : "Launch Post"}
+            {isPending || isUploading ? "Launching..." : "Launch Post"}
           </span>
           <span className="sm:hidden">
-            {isPending ? "Launching..." : "Launch"}
+            {isPending || isUploading ? "Launching..." : "Launch"}
           </span>
         </Button>
       </div>

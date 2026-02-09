@@ -6,6 +6,7 @@ interface Post {
   clerk_user_id: string;
   content: string;
   link: string | null;
+  media_type: string | null;
   created_at: string;
   profiles: {
     username: string;
