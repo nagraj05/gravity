@@ -33,7 +33,7 @@ function FeatureCard({
         initial={false}
       />
 
-      <motion.div
+      {/* <motion.div
         className="text-4xl mb-4"
         animate={{
           scale: [1, 1.1, 1],
@@ -43,9 +43,9 @@ function FeatureCard({
           repeat: Infinity,
           ease: "easeInOut",
         }}
-      >
-        {icon}
-      </motion.div>
+      > */}
+      {icon}
+      {/* </motion.div> */}
 
       <h3 className="text-xl font-semibold mb-2 relative z-10">{title}</h3>
       <p className="text-gray-400 relative z-10">{description}</p>

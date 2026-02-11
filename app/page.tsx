@@ -5,7 +5,6 @@ import FloatingBlobs from "@/components/gravity-components/landing-page/Floating
 import HeroSection from "@/components/gravity-components/landing-page/HeroSection";
 import OrbitingDivider from "@/components/gravity-components/landing-page/OrbitingDivider";
 import FeaturesSection from "@/components/gravity-components/landing-page/FeaturesSection";
-import Astronaut from "@/components/gravity-components/landing-page/Astronaut";
 
 export default function Home(): JSX.Element {
   return (
@@ -25,9 +24,6 @@ export default function Home(): JSX.Element {
         <OrbitingDivider />
 
         <FeaturesSection />
-
-        {/* Floating astronaut */}
-        <Astronaut />
       </main>
     </div>
   );
