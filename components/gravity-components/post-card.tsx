@@ -60,9 +60,7 @@ export default function PostCard({ post }: PostCardProps) {
 
   const isAuthor = user?.id === post.clerk_user_id;
 
-  const displayName = post.profiles?.first_name
-    ? `${post.profiles.first_name} ${post.profiles.last_name || ""}`
-    : post.profiles?.username || "Unknown User";
+  const displayName = post.profiles?.username || "Unknown User";
 
   const displayHandle = post.profiles?.username
     ? `@${post.profiles.username}`
@@ -155,10 +153,9 @@ export default function PostCard({ post }: PostCardProps) {
               className="group/name block"
             >
               <p className="font-medium group-hover/name:text-primary transition-colors truncate">
-                {displayName}
+                @{displayName}
               </p>
               <p className="text-xs text-muted-foreground decoration-muted-foreground/30">
-                {displayHandle} ·{" "}
                 {formatDistanceToNow(new Date(post.created_at), {
                   addSuffix: true,
                 })}
@@ -258,9 +255,12 @@ export default function PostCard({ post }: PostCardProps) {
           <button className="flex items-center gap-2 text-muted-foreground hover:text-red-500 transition-colors">
             <Heart className="w-5 h-5" />
           </button>
-          <button className="flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors">
+          <Link
+            href={`/post/${post.id}`}
+            className="flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors"
+          >
             <MessageCircle className="w-5 h-5" />
-          </button>
+          </Link>
           <button className="flex items-center gap-2 text-muted-foreground hover:text-green-500 transition-colors">
             <Share2 className="w-5 h-5" />
           </button>
