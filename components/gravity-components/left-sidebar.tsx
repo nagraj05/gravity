@@ -74,22 +74,15 @@ export default function LeftSidebar() {
                 @{user.username || user.id.slice(0, 8)}
               </p>
             </div>
-            <ModeToggle />
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-border/50">
             <div className="text-center">
               <p className="text-lg font-bold">{count}</p>
               <p className="text-xs text-muted-foreground">Posts</p>
             </div>
-            <div className="text-center">
-              <p className="text-lg font-bold">0</p>
-              <p className="text-xs text-muted-foreground">Followers</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-bold">0</p>
-              <p className="text-xs text-muted-foreground">Following</p>
-            </div>
+          </div>
+
+          <div className="flex justify-between mt-4 pt-4 border-t border-border/50">
+            <ModeToggle />
+            <LogoutButton />
           </div>
         </div>
       )}
@@ -110,7 +103,6 @@ export default function LeftSidebar() {
           </Link>
         ))}
       </nav>
-      <LogoutButton />
     </div>
   );
 }
